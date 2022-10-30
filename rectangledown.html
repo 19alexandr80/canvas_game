@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>canvasGame</title>
+        <meta charset="utf-8">
+		 <style>
+	        #canvas {
+                background-image: linear-gradient(bottom, #F6F6F6 0%, #B2B2B2 84%);
+                background-image: -moz-linear-gradient(bottom, #F6F6F6 0%, #B2B2B2 84%);
+                background-image: -webkit-linear-gradient(bottom, #F6F6F6 0%, #B2B2B2 84%);
+                border:2px solid #000000;
+            }
+			div {
+				font-size:40px;
+			}
+			button {
+			    font-size:40px;
+				 border-radius: 10px;
+			}
+        </style>
+    </head>
+    <body>
+	  <div align="center">
+	    <section>
+            <button type="button">START</button>
+		    <button type="button">STOP</button>
+		    SCORE
+			<span>0</span>
+		</section>
+        <canvas id="canvas" style="border:1px solid #000000;"></canvas>
+        
+        <script> 
+            let flakes = [];
+		    let canvas = document.getElementById("canvas");
+            let ctx = canvas.getContext("2d");
+            let flakeCount = 1;
+			canvas.width = 1200;
+            canvas.height = 500;
+			let beng = 0;
+		    let hits = 0;
+			let raund = 1;
+			let noStart = 0;
+			let end = 0;
+			let score = document.querySelector('span');
+	        let button = document.querySelectorAll('button');
+			button[0].addEventListener('click', start);
+	        button[1].addEventListener('click', stop);
+			function stop() {
+			    ctx.clearRect(0, 0, canvas.width, canvas.height);
+				cancelAnimationFrame(anim);
+				flakeCount = 1;
+				raund = 1;
+				hits = 0;
+				noStart = 0;
+				end++;
+			}
+			function start() {
+				if (noStart != 0) return;
+				end = 0;
+				noStart++;
+				flakes = [];
+			    for (let i = 0; i < flakeCount; i++) {
+				    flakes.push({
+		                x: Math.floor(Math.random() * canvas.width),
+                        y: 0,
+                        index: Math.floor(Math.random() * 4 + 1),
+		            })
+				}
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.font = '80px serif';
+				ctx.textAlign = 'center';
+				ctx.fillStyle = '#284FDB';
+				ctx.fillText(('Raund: ' + raund), canvas.width/2, 90);
+				score.innerHTML = hits;
+				setTimeout(animacija, 500);
+				
+			}
+			function animacija() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				for (let i = 0; i < flakeCount; i++) {
+				    flakes[i].y += flakes[i].index/2;
+					switch (flakes[i].index) {
+			            case 1 :
+				            ctx.fillStyle = '#F8FF23';
+				        break;
+				        case 2:
+				            ctx.fillStyle = '#3628FF';
+				        break;
+				        case 3:
+				            ctx.fillStyle = '#28FF14';
+				        break;
+				        case 4:
+				            ctx.fillStyle = '#FF0000';
+				        break;
+			        }
+					ctx.beginPath();
+			        if (flakes[i].x >= (canvas.width-(flakes[i].index*10))) flakes[i].x = flakes[i].x - (flakes[i].index*10);
+                    ctx.fillRect(flakes[i].x, flakes[i].y, flakes[i].index*10, flakes[i].index*10);
+					ctx.strokeRect(flakes[i].x, flakes[i].y, flakes[i].index*10, flakes[i].index*10);
+                    ctx.closePath();
+                    ctx.fill();
+			        if (flakes[i].y >= (canvas.height - (flakes[i].index*10)) || flakes[i].y <= 0) {
+                        noStart = 0;
+						cancelAnimationFrame(anim);
+						over();
+						return;
+                    }
+				}
+				anim = requestAnimationFrame(animacija);
+			}
+			canvas.addEventListener('click', clic);
+			function clic(e) {
+				if (end != 0) return;
+				let clickY = e.offsetY;
+	            let clickX = e.offsetX;
+				beng++;
+				for (let i = 0; i < flakeCount; i++) {
+				    if (flakes[i].y < clickY && clickY < flakes[i].y+(flakes[i].index*10) && flakes[i].x < clickX && clickX < flakes[i].x+(flakes[i].index*10)) {
+					    hits++;
+					    score.innerHTML = hits;
+						if ((hits == 5) || (hits == 10) || (hits == 15) || (hits == 20)) {
+							raund++;
+							ctx.clearRect(0, 0, canvas.width, canvas.height);
+							flakeCount++;
+							cancelAnimationFrame(anim);
+							
+							
+							noStart = 0;
+		                    start();
+						}
+						flakes[i].y = 0;
+						flakes[i].x = Math.floor(Math.random() * canvas.width);
+						flakes[i].index = Math.floor(Math.random() * 4 + 1);
+						return flakes;
+					}
+				}
+			}
+			function over() {
+				end++;
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.font = '80px serif';
+				ctx.fillStyle = '#FF0000';
+				ctx.textAlign = 'center';
+				ctx.fillText('Game Over', canvas.width/2, 90);
+				ctx.fillText((hits + ' hits from ' + beng + ' shots'), canvas.width/2, 190);
+				beng = 0;
+				hits = 0;
+				flakeCount = 1;
+				raund = 1;
+			}    
+	        
+        </script>
+	  </div>	
+    </body>
+</html>
